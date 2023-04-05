@@ -1,0 +1,16 @@
+SELECT * from sirket;
+select * from kullanici;
+insert into sirket values(3,'micro','cankaya');
+insert into sirket values(4,'tech','cankaya');
+insert into sirket values(5,'ard','yenimahalle');
+
+select s.adres , count(*) from sirket s 
+group by s.adres having count(*)>1;
+
+select k.* from kullanici k where k.sirket_id in (select s.id from sirket s where s.ad like 'a%') ;
+select k.* from kullanici k where k.sirket_id in (1,2,3,4,5,6);
+
+
+--1 den fazla şirketi olan ilçelerdeki sirket çalışanları
+select k.* from kullanici k , sirket s
+where k.sirket_id= s.id and s.adres in(select s2.adres from sirket s2 group by s2.adres having count(*)>1);

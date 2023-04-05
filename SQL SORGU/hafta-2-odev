@@ -1,0 +1,159 @@
+create table kanal(id numeric(12) not null,
+				  kanal_adi varchar(36),
+				  frekans numeric(12),
+				  ucretli_mi numeric(1),
+				  primary key(id));
+				  
+				  
+create table program(id numeric(12) not null ,
+				    program_adi varchar(36),
+					konu varchar(36),
+					kanal_id numeric(12),
+					primary key (id),
+					CONSTRAINT fk_kanal_id foreign key (kanal_id) REFERENCES kanal(id));
+
+create table oyuncu(id numeric(12) not null ,
+				   adi varchar (30),
+				   soyadi varchar(30),
+				   yasi numeric(3),
+				   primary key (id));
+				   
+create table oyuncu_program (id numeric(12) not null,
+							oyuncu_id numeric(12) not null,
+							program_id numeric(12) not null,
+							daimi_mi numeric(1),
+							primary key (id),
+							CONSTRAINT fk_oyuncu_id foreign key (oyuncu_id) REFERENCES oyuncu(id),
+							CONSTRAINT fk_program_id foreign key (program_id) REFERENCES program(id));
+				
+create table reyting (id numeric(12)not null,
+					 kanal_id numeric(12)not null,
+					 tarih date not null,
+					 sira numeric(3) not null,
+					 primary key(id),
+					 CONSTRAINT fk_reyting_kanal_id foreign key (kanal_id) REFERENCES kanal(id));				
+				   
+
+
+SELECT * FROM kanal;
+select * from program;
+select * from oyuncu;
+select * from oyuncu_program;
+select * from reyting;
+
+insert into kanal values(1,'KANAL A',12342,0);
+insert into kanal values(2,'FOX',55482,0);				   
+insert into kanal values(3,'CNN',65872,0);				   
+insert into kanal values(4,'DISNEY',65204,1);				   
+insert into kanal values(5,'DISCOVERY',90487,1);				   
+				   
+insert into program values(1,'YASAK ELMA','ASK', 2);
+insert into program values(2,'GULDUR GULDUR','KOMEDI', 1);
+insert into program values(3,'TOZLU YAKA','ASK', 3);
+insert into program values(4,'90+','FUTBOL', 4);
+insert into program values(5,'ILERI UCLU','FUTBOL', 5);
+insert into program values(6,'AILE','ASK', 2);
+insert into program values(7,'HABERLER','HABER', 4);
+insert into program values(8,'KAYIP','DIGER', 1);
+
+insert into oyuncu values(1, 'ALPER','ALTINAY',33);
+insert into oyuncu values(2, 'BERKAN','KUTLU',31);
+insert into oyuncu values(3, 'TAYLAN','ANTALYALI',23);
+insert into oyuncu values(4, 'KIVANC','TATLITUG',35);
+insert into oyuncu values(5, 'SERENAY','OKU',28);
+insert into oyuncu values(6, 'TALAT','KORU',26);
+insert into oyuncu values(7, 'EDA','KARA',23);
+insert into oyuncu values(8, 'ECE','OK',41);
+insert into oyuncu values(9, 'HAKAN','KAYA',51);
+insert into oyuncu values(10, 'ONUR','ATILLA',55);
+insert into oyuncu values(11, 'CENGIZ','BOZKURT',52);
+
+insert into oyuncu_program values(1,1,1,1);
+insert into oyuncu_program values(2,2,3,1);
+insert into oyuncu_program values(3,3,2,1);
+insert into oyuncu_program values(4,4,6,1);
+insert into oyuncu_program values(5,5,5,1);
+insert into oyuncu_program values(6,6,4,1);
+insert into oyuncu_program values(7,7,8,1);
+insert into oyuncu_program values(8,7,7,1);
+insert into oyuncu_program values(9,9,8,1);
+insert into oyuncu_program values(10,10,7,1);
+insert into oyuncu_program values(11,11,1,1);
+insert into oyuncu_program values(12,2,4,0);
+insert into oyuncu_program values(13,8,5,0);
+
+insert into reyting values(1,1,CURRENT_DATE,1);
+insert into reyting values(2,2,CURRENT_DATE,4);
+insert into reyting values(3,3,CURRENT_DATE,3);
+insert into reyting values(4,4,CURRENT_DATE,5);
+insert into reyting values(5,5,CURRENT_DATE,2);
+
+----------------------------------------------------SORGULAR-------------------------------------------------------------------
+--Alper isimli oyuncunun katıldığı programların bilgisi
+select p.* from program p 
+join oyuncu_program op on op.program_id = p.id
+join oyuncu o on o.id = op.oyuncu_id
+where o.adi='ALPER';
+
+
+--bugün reytingi en yüksek olan kanaldaki programların listesi
+select p.* from program p
+join kanal k on p.kanal_id = k.id
+join reyting r on r.kanal_id=k.id
+where r.tarih=current_date 
+order by r.sira asc 
+limit 1;
+
+
+--FOX kanalın programlarındaki daimi oyuncuların listesi
+
+SELECT o.adi, o.soyadi, p.program_adi
+FROM oyuncu o
+JOIN oyuncu_program op ON o.id = op.oyuncu_id
+JOIN program p ON op.program_id = p.id
+INNER JOIN kanal k ON p.kanal_id = k.id
+WHERE k.kanal_adi = 'FOX'
+AND op.daimi_mi = 1;
+
+
+--Ücretli kanal adlarının ve son gün reytingi en yüksek olan 2 kanal adlarının tek bir listede getirilmesi:
+
+select k.kanal_adi from kanal k 
+where k.ucretli_mi=1
+union
+(select k2.kanal_adi from kanal k2 
+join reyting r on r.kanal_id = k2.id
+where r.tarih=current_date
+order by r.sira asc limit 2);
+
+--Yaşı 50'den büyük oyuncu oynayan programların listesi:
+
+select p.* from program p
+join oyuncu_program op on op.program_id = p.id
+join oyuncu o on o.id = op.oyuncu_id
+where o.yasi>50;
+
+-- Ücretli kanallardaki tüm konuk oyuncu listesi:
+
+select o.* from oyuncu o
+join oyuncu_program op on op.oyuncu_id = o.id
+join program p on p.id = op.program_id
+join kanal k on k.id=p.kanal_id
+where k.ucretli_mi=1 and op.daimi_mi=0;
+
+--frekansı 20000den yüksek olan oyuncuların yaş ortalaması
+
+select avg(o.yasi) from oyuncu o
+join oyuncu_program op on op.oyuncu_id = o.id
+join program p on p.id = op.program_id
+join kanal k on k.id = p.kanal_id
+where k.frekans>20000;
+
+
+--oyuncu                        1
+--oyuncu-program				2
+--program	frekans				3
+--kanal							4
+
+	
+

@@ -1,0 +1,37 @@
+create table EYT(
+id numeric(12),
+adi varchar(30),
+soyadi varchar(30),
+yasi numeric(3),
+bolum_id numeric(10));  
+
+select*from EYT;
+
+create or replace function t_eyt_kont()
+	returns trigger
+	language PLPGSQL
+	as
+	$$
+	begin
+		if new.yasi>50 then
+			insert into EYT
+			values(new.id,new.calisan_adi,new.calisan_soyadi,new.yasi,new.bolum_id);
+		end if;
+		
+		return new;
+	end;
+	$$
+	
+	
+		
+create trigger eytli_geldi
+ after insert
+ on calisan
+ for each row
+ execute procedure t_eyt_kont();
+ 
+ select*from calisan;
+ 
+ insert into calisan values (29,'CENK','TOSUN',52,22000,1);
+  
+ select*from EYT;

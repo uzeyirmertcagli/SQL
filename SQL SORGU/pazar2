@@ -1,0 +1,28 @@
+select DISTINCT ad,soyad from kullanici order by ad desc,soyad; 
+
+alter table kullanici
+add constraint fk_kullanici_sirket     --foreign key ekleme
+foreign key (sirket_id)
+references sirket(id);
+
+select * from kullanici;
+select * from sirket;
+
+insert into kullanici values (5,'Talha','Demir',3); --2 şirket olduğu için 3. şirkete kayıt yapmaz.
+insert into kullanici values (5,'Talha','Demir',2);
+
+delete from sirket where id=2;   --şirket 2 de çalışan olduğu için silinemiyor
+
+select * from kullanici limit 3 ;  -- ilk 3 değeri getir.
+
+--sirketi mamak olanların ve soyadı a ile baslayanların adını tersten sıralı olarak ilk 2 kayit getiren sorgu
+
+select k.id , k.ad , k.soyad , s.ad , s.adres 
+from kullanici k , sirket s where k.sirket_id =s.id and s.adres='Mamak'and k.soyad like 'A%'
+order by k.ad desc limit 3 ;
+
+insert into kullanici values (6,'Tümer','Metin',1);
+insert into kullanici values (7,'Kerem','Aktürkoğlu',1);
+insert into kullanici values (8,'Ayhan','Akman',1);
+insert into kullanici values (9,'Arda','Turan',1);
+

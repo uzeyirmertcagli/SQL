@@ -1,0 +1,100 @@
+wv--create table test2(id numeric(12,2) , name char(20));
+
+--alter table test2 add soyad char(25);
+
+--alter table test2 add tc numeric(11);
+
+--drop table test2;
+
+--alter table test3 rename to kullanici; configuration.addAnnotatedClass(CepTelefonu.class);
+ 
+--alter table test3 rename column soyadi to soyad;
+
+--insert into kullanici (id,ad,soyad) values (1,'Mert','Çağlı');
+--insert into kullanici (id,ad,soyad) values (2,'Burak','Gökmen');
+--insert into kullanici values (3,'Nihat','Akbaba');
+
+--insert into kullanici (id,ad) values (4,'Taylan');
+
+--select * from kullanici;
+
+--select id,ad from kullanici;
+
+--select k.ad , k.soyad from kullanici k;
+
+--select * from kullanici where ad='Mert' and id=1;
+
+--select * from kullanici where ad='Mert' or id=2;
+	
+--delete from kullanici where id =3;
+
+--select * from kullanici;
+
+--insert into kullanici values(6,'Berkhan','Tapan');
+--insert into kullanici values(8,'Berkhan','Ahmet');
+--select*from kullanici;
+
+--delete from kullanici where ad='Berkhan';
+--select*from kullanici;
+
+
+
+--update kullanici set ad='Ali' where id=2;
+--select * from kullanici;
+--update kullanici set sirket_id=1;
+--select*from kullanici;
+
+--update kullanici set sirket_id=2 where id in(1,2);
+--select * from kullanici;
+
+--update kullanici set soyad='Turan' where id not in(1,2);
+--select * from kullanici;
+
+--create table sirket(id numeric(12,2) , ad char(20) , adres char(150));
+
+--insert into sirket values(1,'Mert','Ankara');
+
+--alter table kullanici add sirket_id numeric(10);
+
+--insert into sirket values (2,'abc','yenimahalle');
+--select * from sirket;
+/*select k.ad ,k.soyad, s.ad from kullanici k ,sirket s where k.sirket_id=s.id and s.id=2;
+select * from sirket;
+select * from kullanici;
+*/
+
+/*insert into kullanici values(9,'Arif' ,'Uslu');
+select * from kullanici;*/
+
+/*
+insert into kullanici values (10,'Asya','Çağlı');
+savepoint ss;
+update kullanici set ad='Defne' where id=10;
+select * from kullanici;
+rollback to ss;
+select * from kullanici;
+commit;
+rollback;
+*/
+
+--truncate table kullanici; --tablo içindeki tüm değerleri siler!
+--select * from kullanici;
+
+--alter table kullanici alter column ad type char(40);
+
+/*insert into kullanici values (1,'Mert' , 'Çağlı' , 1);
+insert into kullanici values (2,'Burak' , 'Gökmen' , 1);
+insert into kullanici values (3,'Nihat' , 'Akbaba' , 2);
+insert into kullanici values (4,'Ayşen' , 'Tekeli' , 2);*/
+
+--select * from kullanici;
+
+--select k.ad,k.soyad from kullanici k order by k.ad; --ada göre sırala
+--select k.ad,k.soyad from kullanici k order by k.ad desc; --terse göre sırala 
+
+insert into kullanici values (5,'Ertuğrul' , 'Duman' , 1);
+select k.ad from kullanici k ;
+W
+select distinct k.ad,k.sirket_id from kullanici k;
+
+

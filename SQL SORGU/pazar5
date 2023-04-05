@@ -1,0 +1,116 @@
+/*
+create table deneme (id numeric(20), ad char(20) , soyad char(25)); --yeni tablo oluştur
+alter table personel add tc numeric(11); --tabloya column ekleme
+drop table deneme; --tablo sil
+alter table personel rename to personeller; --tablo adı değiştir
+alter table personeller rename column tc to TC; --column adı değiştir
+insert into personeller values(1,'Mert','Çağlı',26318610298); --tabloya değer ekleme
+insert into personeller values(2,'Okan','Buruk',54154561254);
+insert into personeller values(3,'Mauro','Icardi',65485235745);
+select*from personeller; --değerleri yazdır
+select id,adlar from personeller; --id ve adları getir
+select p.adlar ,p.soyad from personeller p ; --değişken tanımlayarak ad ve soyad getir
+select * from personeller where adlar='Mauro' and id=3; --adı mauro veya id'si 3 olan değeri getir.
+select * from personeller where adlar='Mauro' or id=1; --adı mauro ve id'si 1 olan değerleri getir.
+delete from personeller where id=3; --id'si 3 olanı sil
+select*from personeller;
+insert into personeller values(3,'Bafetimbi','Gomis',12385245698);
+insert into personeller values(4,'Berkan','Kutlu',54225875645);
+delete from personeller where adlar='Berkan'; --adı berkan olanı sil
+update personeller set soyad='Koçuk' where id=2; --,d'si 2 olan değerin soyadını Kocuk olarak güncelle
+alter table personeller add holding_id numeric(20);
+update personeller set holding_id=1; --holding id'lerini 1 yap
+select*from personeller;
+update personeller set holding_id=2 where id in(1,2); --id'leri 1,2 olanların id'sini 2 yap;
+update personeller set soyad='Turan' where id not in(1,2);--id'leri 1,2 olmayanların soyadını Turan yap;
+select*from personeller;
+create table holding(id numeric(12,2) , ad char(20) , adres char(150));
+insert into holding values(1,'Mert','Ankara');
+update holding set adres='Çankaya' where id=1;
+select*from holding;
+insert into holding values(2,'Sony','Yenimahalle');
+select p.adlar ,p.soyad ,h.ad from personeller p , holding h where p.holding_id=h.id and h.id=2; 
+--ad,soyad,sirket adını getir ama holding id'si 2 olanları ve 2 olan şirketin adını
+select*from personeller;
+select*from holding;
+
+insert into personeller values(4,'Dries','Mertens');
+update personeller set tc=26318645687 where id=4;
+update personeller set holding_id=1 where id=4;
+
+select*from personeller;
+
+insert into personeller values(5,'Nicolo','Zaniolo',25487565874,1);
+savepoint ss;--Savepoint oluştur
+update personeller set adlar='Nicolos' where id=5; 
+select*from personeller;
+rollback to ss; --savepointe geri dön
+select*from personeller;
+commit; --commit yap 
+rollback; --rollback yap
+
+truncate table personeller; --tablo içindeki tüm değerleri siler
+
+select p.adlar,p.soyad from personeller p order by p.adlar; --ada göre sırala
+select p.adlar,p.soyad from personeller p order by p.adlar desc; --ad tersine göre sırala
+
+insert into personeller values (6,'Lucas','Torreira',54875935412,1);
+select*from personeller;
+select p.adlar from personeller p ; --sadece adları getir.
+
+select distinct p.adlar , p.holding_id from personeller p; --aynı olan değerlerin 1 tanesini getir
+*/
+
+
+---------------------------------------------------PART-2-----------------------------------------------------------------
+
+
+/*
+create table kamyon (id numeric(20) , model varchar(30), primary key (id,model)); --id ve model pk olan tablo oluştur
+
+alter table personeller add constraint personeller_pk primary key(id); 
+--personeller tablosuna personeller_pk column ekle ve onu pk yap
+
+alter table personeller drop constraint personeller_pk;
+-- (primary key constraint) kaldırır.
+
+alter table personeller alter column adlar set not null; --Seçili column NOT NULL yapar
+alter table personeller alter column adlar drop not null; --Seçili column NOT NULL özelliğini kaldırır.
+*/
+
+
+---------------------------------------------------PART-3-----------------------------------------------------------------
+
+
+select distinct adlar,soyad from personeller order by adlar desc ,soyad; 
+--farklı kullanıcıların adını ve soyadını getir. İsimler tersten gelsin.
+
+alter table personeller 
+add constraint fk_personeller_holding
+foreign key (holding_id)
+references holding(id);
+--FOREİGN KEY EKLEME^
+
+select*from personeller;
+select*from holding;
+
+insert into personeller values (7,'Sergio','Oleviera',45898765245,3); 
+--2 şirket olduğu 3.şirkete kayıt yapılmaz.
+insert into personeller values (7,'Sergio','Oleviera',45898765245,2); 
+delete from sirket where id=2;  --şirket 2 de çalışan olduğu için silinemiyor
+
+select * from personeller limit 3; -- ilk 3 değeri getir.
+
+--sirketi Yenimahalle olanların ve soyadı O ile baslayanların adını tersten sıralı olarak ilk 2 kayit getiren sorgu
+
+select p.id ,p.adlar , p.soyad , h.ad , h.adres
+from personeller p , holding h where p.holding_id =h.id and h.adres = 'Yenimahalle' and soyad like'O%'
+order by p.adlar desc limit 3;
+
+
+---------------------------------------------------PART-4-----------------------------------------------------------------
+
+
+
+
+

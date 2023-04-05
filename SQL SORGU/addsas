@@ -1,0 +1,70 @@
+--reyting tablosunda bugünün 1.sıradaki kaydı silinirse 
+--aynı gündeki tüm kayıtların sırası 1 azaltılsın
+insert into reyting values(6,1,CURRENT_DATE,1);
+insert into reyting values(7,2,CURRENT_DATE,4);
+insert into reyting values(8,3,CURRENT_DATE,3);
+insert into reyting values(9,4,CURRENT_DATE,5);
+insert into reyting values(10,5,CURRENT_DATE,2);
+
+
+
+
+
+create or replace function t_reyt_kont()
+	returns trigger
+	language PLPGSQL
+	as
+	$$
+	begin
+		if old.tarih=current_date and old.sira=1 then
+			update reyting set sira=sira-1 where tarih=current_date;
+		end if;
+		
+		return new;
+	end;
+	$$
+	
+	
+		
+create trigger reyting_silindi
+ after delete
+ on reyting
+ for each row
+ execute procedure t_reyt_kont();
+ 
+ delete from reyting where tarih=current_date and sira=1;
+ 
+ select*from reyting;
+ 
+ select*from calisan;
+ 
+ insert into calisan values (29,'CENK','TOSUN',52,22000,1);
+  
+ select*from EYT;
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ select o.* from oyuncu o 
+join oyuncu_program op on op.oyuncu_id = o.id
+join program p on p.id=op.program_id
+where p.konu='FUTBOL' and op.daimi_mi=1
+order by o.adi asc;
+ 
+ 
+ 
+ 
+ 7,'ZENDESK','IZMIR','G34453',7650545
+ 
+ 
+ 
+ 
+ 
+ 
+ 

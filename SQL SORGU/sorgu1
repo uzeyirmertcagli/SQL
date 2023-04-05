@@ -1,0 +1,2 @@
+--insert into araba values (2,'Mitsubishi ASX','Dizel');
+select * from araba ;

@@ -1,0 +1,91 @@
+create table test_table (id  numeric(11) not null ,
+						 name varchar(20) not null ,
+						 age numeric(11) not null ,
+						 adress varchar(25) ,
+						 salary decimal(18,2),
+						 primary key(id));
+				
+insert into test_table values (1,'Emilly',22,'Washington PD' , 21000);			
+insert into test_table values (2,'Ahmet',25,'Ankara' , 1500);	
+insert into test_table values (3,'Ayşe',23,'Bursa' , 2000);	
+insert into test_table values (4,'Mustafa',25,'İzmir' , 6500);	
+insert into test_table values (5,'Mert',27,'Antalya' , 8500);	
+insert into test_table values (6,'Fatma',22,'Kayseri' , 4500);	
+insert into test_table values (7,'Ece',24,'Adana' , 10000);	
+
+select*from test_table;
+select id,name,salary from test_table order by id; --id'e göre sırala
+select id,name,salary from test_table where salary>2000; -- maaşları 2000'den fazla olanlar
+select id,name,salary from test_table where name='Ahmet'; --Adı Ahmet olan kişi
+
+select id,name,salary from test_table where age<25 or salary>2000; -- yaşı 25ten küçük veya maaşı 2000den fazla olanlar
+select id,name,salary from test_table where age<25 and salary<=2000; -- yaşı 25ten küçük ve maaşı 2000e kü.ük eşit olanlar
+select id,name,salary from test_table where name like '%af%'; --adında "af" geçenler
+
+select distinct age from test_table order by age;
+
+select*from test_table where name='Mert' or name='Ece';
+select*from test_table where name in('Mert','Ece');,
+
+select*from test_table where age<>23 and age<>24 and age<>25;
+select*from test_table where age not in(23,24,25);
+
+select*from test_table where age>=20 and age<= 24;
+select*from test_table where age between 20 and 24;
+
+select*from test_table where age<20 or age>24;
+select*from test_table where not between 20 and 24;
+
+insert into test_table (id,name,age) values (8,'Hasan',28);
+select*from test_table;
+
+select*from test_table where adress is null;
+
+select count(*) from test_table ;
+select id from test_table ;
+select count(id) from test_table ;
+
+select adress from test_table ;
+select count(adress) from test_table ;
+
+SELECT sum(age) from test_table ; --yaşlar toplamı
+SELECT sum(age) from test_table where name like '%af%' ; --adında af geçenlerin yaşları toplamı
+
+select avg(age) from test_table; --yaş ortalaması
+select avg(salary) from test_table where age>24; --yaşı 24'ten büyük kişilerin maas ortalaması
+
+select max(age)from test_table;
+select max(salary)from test_table;
+select*from test_table where salary is not null order by salary desc limit 1 ;
+select a.*from test_table a where a.salary in(select max(b.salary)from test_table b);
+
+select min(age)from test_table;
+update test_table set adress='Ankara' where id=8;
+update test_table set adress='Kayseri' where id=1;
+update test_table set adress='Istanbul' where adress='Kayseri';
+
+select adress from test_table group by adress;
+select adress , count(*) from test_table group by adress order by count(*);
+
+select adress , count(*) from test_table where age>24
+group by adress having count(*)>=2 order by count(*)asc , adress desc limit 1;
+
+select *from test_table order by name asc , salary desc;
+
+select*from test_table where age>23 and salary is not null order by salary desc limit 2;
+
+select avg(salary) , sum(salary) from test_table; 
+
+select age , count(*) from test_table group by age ;
+
+select adress , count(*) from test_table where adress like 'A%' group by adress ;
+
+update test_table set adress='Erzurum' where id=6;
+
+update test_table set salary=salary*1.1 ;
+update test_table set age=age-2 where id=3;
+
+delete from test_table where name like'%f%';
+select*from test_table;
+
+delete from test_table where id=6;

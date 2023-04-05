@@ -1,0 +1,464 @@
+---------------SORULAR----------------
+
+--tum calisanlar içerisinde arge bolumunde(arge_mi) calisan en yuksek maasli 5 kisinin 
+--adı, soyadı, maaşı ve bölümün adını listeleyiniz
+
+select c.calisan_adi , c.calisan_soyadi , c.maasi , b.bolum_adi
+from calisan c, bolum b 
+where c.bolum_id=b.id and b.arge_mi=1 order by c.maasi desc limit 5; 
+
+--ARGE adında bir bölümü olmayan sirketleri listeleyiniz.
+
+select*from bolum;
+
+select b.bolum_adi , b.sirket_id
+from bolum b
+where b.bolum_adi='ARGE';       --arge bolumu olan bolumlerin adını ve idsini getir
+
+select * from sirket where id not in(1,2,4); --1-2-4 id olmayanları getir
+
+select * from sirket where id NOT IN (select  b.sirket_id
+from bolum b
+where b.bolum_adi='ARGE');
+
+
+--Ankara da çalışan en yüksek maaşlı calısan kimdir?
+
+select c.* , s.adi , s.sehir from calisan c ,sirket s, bolum b
+where c.bolum_id = b.id and b.sirket_id =s.id and s.sehir='ANKARA'
+order by c.maasi desc limit 1;
+
+
+--50 yas ustu calisani olan ISTANBUL daki sirketlerin listesi(her kayıt 1 kere yazdırılmış olsun)
+
+select distinct  s.* from sirket s, bolum b , calisn c
+where c.bolum_id = b.id and b.sirket_id =s.id and s.sehir='ISTANBUL'and
+c.yasi>49;
+
+--vergi levhası K ile başlayan sirketlerin arge bölümlerinin listesi;
+--bölüm adı, sirket adı ve vergi levhası bilgileri yazdırılarak sirket adına göre azalan sırada(Z den A ya dogru) listelenmesi
+
+select b.bolum_adi , s.adi , s.vergi_levha 
+from bolum b , sirket s 
+where b.sirket_id = s.id and b.arge_mi=1 and
+s.vergi_levha like'K%' order by s.adi desc;
+
+--yıllık cirosu 500.000.000 dan fazla olan sirketlerin arge bölümünde çalışanların listesi
+
+select s.son_yil_ciro , c.calisan_adi , c.calisan_soyadi
+from sirket s , bolum b , calisan c 
+where c.bolum_id=b.id and b.sirket_id=s.id and b.bolum_adi='ARGE' and s.son_yil_ciro>500000000;
+
+--yıllık cirosu 100.000.000 dan az olan sirketlerin arge bölümünde çalışan 30 yas altı calışanlar
+
+select s.son_yil_ciro , c.calisan_adi , c.calisan_soyadi
+from sirket s , bolum b , calisan c 
+where c.bolum_id=b.id and b.sirket_id=s.id and b.bolum_adi='ARGE' and s.son_yil_ciro<100000000 and c.yasi<30;
+
+--içerisinde birden fazla sirket olan sehirlerdeki sirketlerin bölümlerinin listesi
+
+select s.* , b.bolum_adi
+from sirket s , bolum b
+where b.sirket_id = s.id and s.sehir in(select s2.sehir from sirket s2 group by sehir having count(*)>1);
+
+--içerisinde sadece bir sirket bulunduran sehirlerdeki sirketlerin 40 yas altı çalışanları
+
+select s.* , b.bolum_adi , c.calisan_adi , c.calisan_soyadi
+from sirket s , bolum b , calisan c
+where c.bolum_id=b.id and b.sirket_id = s.id and c.yasi<40 and  
+s.sehir in(select s2.sehir from sirket s2 group by sehir having count(*)<2);
+
+--maaşı 25000 den fazla olan ve 30 yas altı çalışanlar
+
+select c.calisan_adi , c.calisan_soyadi , c.maasi , c.yasi
+from calisan c 
+where c.maasi>25000 and c.yasi<30;
+
+--adı en cok olan çalışanların(aynı ada sahip) içerinden en yüksek maaş alan calışanın bilgisi
+
+select * from calisan c 
+where c.calisan_adi IN('MUSTAFA')order by c.maasi desc limit 1; --adı mustafa olanlardan en çok maaş alan
+
+select c2.calisan_adi
+from calisan c2 group by c2.calisan_adi order by count(*) desc limit 1
+
+
+select * from calisan c 
+where c.calisan_adi 
+IN(select c2.calisan_adi
+from calisan c2 group by c2.calisan_adi order by count(*) desc limit 1)order by c.maasi desc limit 1;
+
+
+--bölüm adı en çok olan bölümlerden(eşitlik durumunda ada göre önce olan) 
+--sirketinin cirosu en yüksek olan sirketin yaşca en kücük calisanın maaşı
+
+select b.bolum_adi from bolum b group by b.bolum_adi order by count(*) desc , b.bolum_adi asc limit 1;
+
+select s.* from sirket s, bolum bb where s.id=bb.sirket_id 
+and bb.bolum_adi IN(select b.bolum_adi from bolum b group by b.bolum_adi order by count(*) desc , b.bolum_adi asc limit 1)
+order by s.son_yil_ciro desc limit 1;
+
+select c.* , ss.adi 
+from calisan c, bolum bbb, sirket ss
+where c.bolum_id=bbb.id and bbb.sirket_id=ss.id
+and ss.id IN(select s.id from sirket s, bolum bb where s.id=bb.sirket_id 
+and bb.bolum_adi IN(select b.bolum_adi from bolum b group by b.bolum_adi order by count(*) desc , b.bolum_adi asc limit 1)
+order by s.son_yil_ciro desc limit 1) order by c.yasi limit 1;
+
+--bölüm adı en çok olan bölümlerden(eşitlik durumunda ada göre önce olan)
+--şirketin cirosu en yüksek olan sirkete TEST adında arge bölümü ekle
+
+insert into bolum
+values(
+12,
+	'TEST',
+	1, --arge_mi
+	(select s.id from sirket s, bolum bb where s.id=bb.sirket_id 
+and bb.bolum_adi IN(select b.bolum_adi from bolum b group by b.bolum_adi order by count(*) desc , b.bolum_adi asc limit 1)
+order by s.son_yil_ciro desc limit 1)
+);
+
+select * from bolum;
+select * from calisan;
+--cirosu en az olan şirketin arge bölümlerinden alfabetik ilk önce (a dan z ye ) gelenine
+--32 yasında HASAN KAYA isimli 26000 maaşlı çalışanı ekleyen script
+
+
+select b.id from sirket s , bolum b 
+where b.sirket_id=s.id
+and b.arge_mi=1
+order by s.son_yil_ciro asc , b.bolum_adi asc limit 1;
+
+insert into calisan
+values(
+22,
+'HASAN',
+'KAYA',
+32,
+26000,
+	(select b.id from sirket s , bolum b 
+where b.sirket_id=s.id
+and b.arge_mi=1
+order by s.son_yil_ciro asc , b.bolum_adi asc limit 1)
+	);
+
+select * from calisan;
+
+select id, calisan_adi as ad , calisan_soyadi as soyad , yasi as yas , maasi as maas , bolum_id as b_id from calisan; 
+select bolum_adi as adi from bolum;
+--sorguya özel olarak as kullanarak isimlendirme yapma (tabloda değişiklik yapmaz)
+
+select bolum_adi as adi from BOLUM
+UNION
+select calisan_adi as adi from CALISAN  order by adi;
+
+-- iki listeyi birleştirme(union)
+
+
+
+
+select bolum_adi as adi from BOLUM
+UNION ALL
+select calisan_adi as adi from CALISAN  order by adi;
+
+-- distinct yapmadan hepsini getirme
+
+
+
+select b.bolum_adi as isim from bolum b where b.sirket_id=1
+UNION
+select b.bolum_adi as isim from bolum b where b.sirket_id IN(select s.id from sirket s where s.sehir='IZMIR')
+
+
+
+--SQUENCES TANIMLAMA
+
+create sequence seq_bolum
+increment 1 --kaçar kaçar artacağı
+start 20 --kaçtan başlayacağı
+minvalue 10 
+owned by bolum.id;
+
+
+insert into bolum values(nextval('seq_bolum'),'TEST1',1,5);
+insert into bolum values(nextval('seq_bolum'),'TEST1',0,4);
+insert into bolum values(nextval('seq_bolum'),'TEST1',1,2);
+select*from bolum;
+
+
+
+----------------------------------------------------------------------------------------------------------------
+
+
+create table test123(
+id numeric PRIMARY KEY,
+	name varchar(25) not null,
+	date1 DATE not null,
+	date2 DATE not null default current_date
+);
+
+select*from test123;
+insert into test123(id,name,date1)
+values(2,'test','2001-04-01');
+select now(); --bugünün saat_tarih
+select now()::date; --bugünün tarihi
+select current_date; --bugünün tarihi
+select to_char(current_date, 'dd/mm/yyyy'); --formatı değiştir
+select to_char(now():: date, 'Month dd , yyyy');
+
+select id , name , current_date - date1 as fark
+from test123;  --iki tarih arası fark
+
+select id , name , age(date1)  --yaş sorgusu
+from test123;
+
+select id , name , AGE('2023-01-01',date1)  --bu tarihte kaç yaşındaydım sorgusu
+from test123;
+
+select id , name ,
+extract(year from date1) as YEAR,
+extract(month from date1) as MONTH, 	--verilen tarihi gün ay ve yıl olarak gösterme
+extract(day from date1) as DAY
+from test123;
+
+select * from test123 where extract (year from date1)='2001'; --yıl bilgisi 2001 olanları getir
+
+select * from test123 where extract (month from date1)='04'; --ay bilgisi 04 olanları getir
+
+select * from test123 where extract(yeat from date1)='2001' and extract(month from date1)='04';
+--yıl bilgisi 2001 ve ay bilgisi 04 olanları getir
+
+select * from test123 where date1 between '2000-01-01' and '2022-01-01';   --iki tarih arasında ki değerleri getir
+
+select * from test123 where date1 between '1994-01-01' and current_date; --1994 ile şimdiki zaman arasındaki değerleri getir
+
+select * from test123 where date1<'2002-01-01'; --bu tarihten önceki değerleri getir
+
+
+
+select AVG(yasi) as yas , AVG(maasi) as maas from calisan; --calisan tablosunda yas ve maas ortalaması
+
+
+--XSOFT şirketinde çalışanların maaş ve yaş ortalaması
+select AVG(c.maasi) as maas , AVG(yasi) as yas from calisan c , sirket s ,bolum b
+where c.bolum_id=b.id and b.sirket_id=s.id and s.adi='XSOFT';
+
+select * from sirket;
+
+
+--ankarada çalışan arge personelleri(arge_mi) maas ortalamı
+select AVG(c.maasi) as maas from calisan c , sirket s , bolum b
+where c.bolum_id=b.id and b.sirket_id=s.id and s.sehir='ANKARA' and b.arge_mi=1;
+
+
+
+select count(*) from calisan;
+insert into calisan (id,calisan_adi,yasi,maasi,bolum_id) values (23,'AHMET',28,18000,3);
+select count(calisan_soyadi) from calisan;
+
+select count(*)-count(calisan_soyadi) as fark from calisan;
+
+--ANKARA daki IK bölümlerinde çalışan ve sistemde soyadı kayıtlı olmayan calışan sayısı
+select * from bolum;
+
+select count(*)-count(calisan_soyadi) as fark from calisan c , bolum b , sirket s
+where c.bolum_id=b.id and b.sirket_id=s.id and s.sehir='ANKARA' and b.bolum_adi='IK' ;
+
+
+select max(maasi)from calisan; --en yüksek maaşı getir
+select min(maasi)from calisan; --en düşük maaşı getir
+
+----------------------------------------------izmirde en yüksek maaşı alan kişi--------------------------------------------
+select max(maasi) from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.sehir='IZMIR';
+
+----------------------ANKARA da  en yüksek maaşı alan kişi - BİLGİLERİYLE(in kullanarak)--------------------------------------------
+select c.* from calisan c 
+where c.maasi in(select max(maasi) from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.sehir='ANKARA');
+
+
+-----------İstanbul daki en yaşlı çalışanın çalıştığı şirketteki adı a ile başlayan çalışan sayısı kaçtır?------------------
+
+select max(yasi)from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.sehir='ISTANBUL'; 
+--istanbulda calisan en yaşlı
+
+
+select s.adi from sirket s , calisan c , bolum b
+where c.bolum_id=b.id and b.sirket_id=s.id  and c.yasi in(select max(yasi)from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.sehir='ISTANBUL');
+--istanbulda calisan en yaşlı ve şirketi
+
+
+select count(*) from calisan c , bolum b , sirket s
+where c.bolum_id=b.id and b.sirket_id=s.id and c.calisan_adi like 'A%' and s.adi in(select s.adi from sirket s , calisan c , bolum b
+where c.bolum_id=b.id and b.sirket_id=s.id  and c.yasi in(select max(yasi)from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.sehir='ISTANBUL'));
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+select * from calisan c where c.yasi in(select min(yasi) from calisan);
+
+
+-----------------------------mevcut-değerlerle-yeni-değer-oluşturma---------------------------------------------------------
+insert into calisan(id,calisan_adi,calisan_soyadi,yasi,maasi,bolum_id)
+select nextval('seq_calisan'),c.calisan_adi,c.calisan_soyadi,c.yasi,30000,c.bolum_id
+from calisan c 
+where c.id=1;
+
+select * from calisan;
+
+--en genç çalışanın tüm bilgileri aynı yası 45 olacak şekilde yeni kayıt id güncellenecek
+
+insert into calisan(id,calisan_adi,calisan_soyadi,yasi,maasi,bolum_id)
+select nextval('seq_calisan'),c.calisan_adi,c.calisan_soyadi,45,c.maasi,c.bolum_id
+from calisan c 
+where c.yasi in(SELECT min(c.yasi) FROM calisan c);
+
+select * from calisan;
+------------------------------------------------------------------------------------------------------------------
+
+select sum(yasi)from calisan;  --yaşların toplamını verir.
+
+
+--xsoft şirketinde çalışanların maaşları toplamı
+select sum(c.maasi)from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.adi='XSOFT';
+
+
+--xsoft şirketinde aylık maaşların %60ı kadar vergi ödüyorsa ödediği vergi
+
+select sum(c.maasi)*0.6from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.adi='XSOFT';
+
+--vergi + maaş masrafı
+
+select sum(c.maasi)*1.6from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.adi='XSOFT';
+
+----vergi +(yıllık maaş masrafı)
+
+select (sum(c.maasi)*0.6)*12from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.adi='XSOFT';
+
+--diğer masraflar düşünülmediği durumda şirketin yıllık karı nedir?
+
+select ss.son_yil_ciro-(select (sum(c.maasi)*0.6)*12from calisan c , bolum b , sirket s 
+where c.bolum_id=b.id and b.sirket_id=s.id and s.adi='XSOFT') from sirket ss
+where ss.adi='XSOFT';
+
+
+
+select * from calisan;
+
+-------------------------------------------------------------------------------------------------------------------------
+
+select s.adi , b.bolum_adi , c.calisan_adi
+from sirket s 
+join bolum b on b.sirket_id=s.id
+join calisan c on c.bolum_id=b.id;
+
+select * from bolum b 
+join calisan c on c.bolum_id=b.id;
+
+insert into calisan(id,calisan_adi,yasi) values (nextval('seq_calisan'),'MERT',45);
+
+select * from bolum b 
+right join calisan c on c.bolum_id=b.id;
+
+select * from calisan c 
+left join bolum b on c.bolum_id=b.id;
+
+update calisan set bolum_id=1 where id=100;
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+insert into ogrenci VALUES(nextval('seq_ogrenci'),'BURAK','GÖKMEN',771);
+insert into ogrenci VALUES(nextval('seq_ogrenci'),'NİHAT','AKBABA',542);
+insert into ogrenci VALUES(nextval('seq_ogrenci'),'AYŞEN','TEKELİ',213);
+insert into ogrenci VALUES(nextval('seq_ogrenci'),'ARİF','USLU',654);
+insert into ogrenci VALUES(nextval('seq_ogrenci'),'UMUTCAN','AĞTÜRK',122);
+insert into ogrenci VALUES(nextval('seq_ogrenci'),'AHMET','TÜYLÜ',671);
+
+select*from ogrenci;
+
+insert into ogretmen VALUES(nextval('seq_ogretmen'),'ERTUĞRUL','DUMAN');
+insert into ogretmen VALUES(nextval('seq_ogretmen'),'CİHAN','YETİŞKEN');
+insert into ogretmen VALUES(nextval('seq_ogretmen'),'MAHMUT','KASAP');
+
+select*from ogretmen;
+
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),1,1,'VTP-101');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),2,1,'VTP-101');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),3,1,'VTP-101');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),1,2,'MP-101');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),2,2,'MP-101');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),3,2,'MP-202');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),4,2,'MP-202');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),5,3,'INGILIZCE-I');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),6,3,'INGILIZCE-I');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),7,3,'INGILIZCE-I');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),5,3,'KIMYA-2');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),6,1,'FIZIK-2');
+insert into ogrenci_ogretmen values (nextval('seq_ogrenci_ogretmen'),7,1,'FIZIK-2');
+
+
+select * from ogrenci_ogretmen;
+
+select*from ogrenci o
+join ogrenci_ogretmen og_og on og_og.ogrenci_id=o.id
+join ogretmen ogn on og_og.ogretmen_id=ogn.id
+where o.adi='MERT';
+
+
+select*from ogrenci o
+join ogrenci_ogretmen og_og on og_og.ogrenci_id=o.id
+join ogretmen ogn on og_og.ogretmen_id=ogn.id
+where ogn.adi='ERTUĞRUL';
+
+----------------------------------------------------------------------------------------------------------------------------------------
+select*from telefonlar;
+
+insert into telefonlar values(1,05458640106);
+insert into telefonlar values(1,05067920806);
+insert into telefonlar values(2,05357480007);
+
+select o.adi , t.telefon from ogrenci o
+join telefonlar t on t.ogrenci_id=o.id;
+
+----------------------------------------------------------------------------------------------------------------------------
+
+select*from ders_notu;
+insert into ders_notu values(1,'VTP-101',85);
+insert into ders_notu values(1,'INGILZICE-I',75);
+insert into ders_notu values(2,'KIMYA',60);
+insert into ders_notu values(1,'FIZIK-2',70);
+insert into ders_notu values(1,'INGILIZCE-I',95);
+
+select o.adi , o.soyadi, dn.ders,dn.not from ogrenci o
+join ders_notu dn on dn.ogr_id=o.id
+where o.id=1;
+
+----------------------------------------------------------------------------------------------------------------------------
+select*from ders_notu;
+
+insert into not_skala values(1,'YUZLUK');
+insert into not_skala values(2,'BESLIK');
+
+update ders_notu set not_skala=1;
+
+insert into ders_notu values(3,'MATEMATIK',4,2);
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,27 @@
+--insert into araba values (2,'Mitsubishi ASX','Dizel');
+--select * from araba ;
+
+--create table kamyon (id numeric(20),model varchar(30),primary key(id,model));
+
+/*
+alter table kullanici add constraint kullanici_pk primary key(id);
+alter table kullanici drop CONSTRAINT kullanici_pk; 
+
+alter table araba add column sase varchar(25);   --istenilen tabloya column ekleme
+*/
+/*
+insert into araba values(3,'Fluence','Dizel');
+insert into araba values(4,'Mercedes E200' , 'Benzin-LPG');
+
+update araba set sase='ASD5418ASD155' WHERE id=3;
+update araba set sase='ASD6565QW4F4H' WHERE id=4;
+
+select * from araba;
+
+ALTER TABLE araba ALTER COLUMN sase SET NOT NULL; --seçili column not null yapar
+ALTER TABLE araba ALTER COLUMN sase DROP NOT NULL; --seçili column not null özelliğini kaldırır.
+*/
+
+create table otobus (id numeric(20), renk varchar(25) NOT NULL );
+
+
